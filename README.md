@@ -6,8 +6,9 @@ Baza wiedzy nt. Amazon Web Services.
 
 ---
 
-## 1.IAM
+## 1.IAM - Identity and Access Management
 
+IAM:
 * scentralizowana kontrola konta AWS
 * dzielenie dostępu do usług
 * pozwolenia Granular Permissions
@@ -51,7 +52,7 @@ Zasada 1 Key Pair - 1 użytkownik
 
 ---
 
-## 2. EC2
+## 2. EC2 - Elastic Compute Cloud
 
 Elastic Compute Cloud (EC2) - instancja elastycznie zmieniającej rozmiar chmury obliczeniowej.
 
@@ -111,7 +112,8 @@ Route 53
 
 ---
 
-## 3. RDS
+## 3. RDS - Relational Database Service
+
 Online Transaction Processing OLTP
 Online Analitics Processing OLAP
 
@@ -207,7 +209,7 @@ RedShift dobre do odciążania baz danych związanych z analizą OLAP
 
 ## 4. S3 - Simple Storage Service
 
-Zapisywanie obiektów:
+S3 - Simple Storage Service - zapisywanie obiektów:
 * bezpieczne,
 * trwałe,
 * wysoko-skalowalne,
