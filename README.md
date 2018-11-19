@@ -1,10 +1,12 @@
 # AWS-Descriptions
 
 Knowledge base about basics and standards in Amazon Web Services.
+
 Baza wiedzy nt. Amazon Web Services.
+
 ---
 
-##1.IAM
+## 1.IAM
 
 * scentralizowana kontrola konta AWS
 * dzielenie dostępu do usług
@@ -26,7 +28,7 @@ Access Key i Secret Access Key - potrzebne do logowania poprzez Command Line Int
 
 Nazwa użytkownika i hasło - logowanie poprzez konsolę AWS
 
-IAM
+IAM:
 * uniwersalny - nie podzielny na regiony,
 * root - pierwszy użytkownik, tworzony wraz z kontem AWS,
 * nowi użytkownicy NIE MAJĄ uprawnień,
@@ -46,9 +48,10 @@ Używaj grup - użytkownicy będą dziedziczyć prawa pozwoleń automatycznie
 Access Key i Secret Access Key można regenerować
 
 Zasada 1 Key Pair - 1 użytkownik
+
 ---
 
-##2. EC2
+## 2. EC2
 
 Elastic Compute Cloud (EC2) - instancja elastycznie zmieniającej rozmiar chmury obliczeniowej.
 
@@ -105,9 +108,10 @@ IPv4 Address - zobacz X-Forwarded-For-Header
 Route 53
 * Amazon DNS
 * domeny dla instancji EC2, load ballancerów, bucketów S3
+
 ---
 
-##3. RDS
+## 3. RDS
 Online Transaction Processing OLTP
 Online Analitics Processing OLAP
 
@@ -198,9 +202,10 @@ Redis
 Elasticache używane do odciążania DB opartych na odczycie danych read-heavy stress-load, raczej nie do zapisów
 
 RedShift dobre do odciążania baz danych związanych z analizą OLAP
+
 ---
 
-##4. S3 * Simple Storage Service
+## 4. S3 - Simple Storage Service
 
 Zapisywanie obiektów:
 * bezpieczne,
@@ -264,7 +269,6 @@ Glacier:
 * tani
 * tylko archiwalne dane
 * dostęp do danych po ok 3-5 godz.
-
 
 S3 - opłaty:
 * użycie w GB,
