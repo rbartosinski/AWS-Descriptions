@@ -280,3 +280,125 @@ S3 - opłaty:
 * przyspieszenie transferu * użycie CloudFront do optymalizacji transferu
 
 S3 nie pasuje do instalacji na systemach opercyjnych lub włączonych bazie danych
+
+Bezpieczeństwo S3:
+* domyślnie buckety są prywatne,
+* można zmienić ustawienia kontroli dostępu używając:
+- poziom bucketa - Bucket Policies
+- poziom obiektu - Lista Kontroli Dostępu
+
+Szyfrowanie S3:
+* w ruchu: TLS/SSL
+* w spoczynku (at rest):
+- Server Side Encryption:
+1. SSE-S3 - S3 Managed Keys
+2. S3-KMS - AWS Key Management Service
+3. SSE-C - Server Side Enc. with Customer Provided Keys
+- Client Side Encryption.
+
+Za każdym razem po uploadzie pliku do S3 jest inicjowane żądanie PUT
+
+Do headera żądania zostaje dodany parametr x-amz-server-side-encryption. Może mieć dwie opcje:
+1. AES256 - SSE-S3 S3 Managed Keys
+2. aws:kms - SSE KMS
+
+Dodanie parametru 'x-amz' do headera żądania mówi S3 żeby użyć szyfrowania podczas wgrywania.
+
+Możesz wymusić użycie SSE definiując Bucket Policy, które odrzucają żądania S3 PUT bez dołączonego headera 'x-amz'.
+
+---
+
+## 5. CloudFront
+
+Edge location - miejsce, w którym treści są cache'owane, mogą być też zapisywane. Speracja regionów AWS Region Availibility Zones.
+
+Origin - pierwotna lokalizacja przechowywania plików dystrybuowanych w CloudFront.
+
+Origin:
+* S3 Bucket
+* instancje EC2
+* Elastic Load Ballancer
+* Route 53
+
+Distribution - nazwa nadawana CloudFrontowi zawierająca skład kolekcji lokalizacji Edge.
+
+Web Distribution - używana do stron WWW.
+
+RTMP - używana do streamingu.
+
+CloudFront - może być używany do dostarczania całkowitycyh stron WWW zawierających dynamiczne, statyczne, streamingowe i interaktywne treści używając globalnej sieci miejsc Edge.
+
+Requesty takich treści są automatycznie kierowane do najblizszego punktu Edge. Treść jest dostarczana w najlepszej możliwej wydajności.
+
+CF może być u żyty do optymalizacji wydajności dla użytkowników dostępu do stron zamieszczonych na S3.
+
+CF jest zoptymalizowany do działania z innymi usługami AWS jak:
+* S3
+* EC2
+* ELB
+* Route 53
+* może współpracować także z innymi rozwiązaniami nie będącymi oryginalnie postawionymi w AWS.
+
+2 typy dystrybucji CF:
+* Web Distribution - dla stron, używa HTTP/S.
+* RTMP Distribution - Adobe Real Time Messaging Protocol, do streamingu mediów, treści multimedialnych flash
+
+Do Edge Location można zapisywać (not just read-only)
+
+CloudFront Edge Locations wykorzystują S3 Transfer Acceleration do zredukowania opóźnień uploadu na S3. Obiekty są cache'owane na czas określony w parametrze TTL (Time To Live). Możesz wyczyścić cache obiektów, ale będzie trzeba zapłacić.
+
+Cross Origin Resource Sharing (CORS):
+* używane do określenia dostępu z oryginalnej lokalizacji do innych usług AWS
+* domyślnie zasoby w jednym buckecie nie moga mieć dostępu do zasobów w drugim
+* do pozwolenia na interakcję niezbędna jest konfiguracja CORS i włączenie dostępu do oryginalnego (Enable Access for the Origin)
+* zawsze używaj S3 website URL, nie zaś regular Bucket URL
+
+Performance Optimization dla S3:
+* S3 - GET-intensive workloads - użyć CF
+* mixed workloads: ustwić random prefix np. HexHash do nazwy klucza zapobiegając powielaniu nazw plików zapisanych na tej samej partycji. Uniknąć sekwencyjnego klucza nazw obiektów
+
+---
+
+## 6. API Getaway
+
+API Getaway - w pełni zarządzana usługa przynosząca API na każdą skalę, będące dodatkowo łatwe w publikacji, utrzymaniu, monitorowaniu i zabezpieczaniu. Za pomoca kilku kliknięć możesz stworzyć API działające na zasadzie Front Doors dla swoich aplikacji np. uruchomionych na EC2, AWS Lambda czy każdej innej webowej aplikacji.
+
+API Getaway daje:
+* ustawienie endpointów HTTPS do zdefiniowania RESTFul API
+* bezserwerowe połączenie z usługami jak AWS Lambda czy DynamoDB
+- wysłanie każdego endpointa do osobnego celu
+- uruchomienie z małymi kosztami
+- bezwysiłkowe (effortlessly) skalowanie
+- śledzenie i kontrola poprzez klucze API
+- tłumienie (throttle) żądań zapobiegając atakom
+- połączenie z CloudWatchem do tworzenia logów każdego żądania i monitorowania
+- utrzymanie różnych wersji tego API
+
+Konfiguracja API Getaway:
+* zdefinuj kontener API
+* zdefiniuj zasoby i zagnieżdżone zasoby (URL)
+*  dla każdego zasobu:
+- wybierz metody HTTP
+- ustaw bezpieczeństwo
+- wybierz cel (EC2, Lambda etc.)
+- ustaw żądania i odpowioedź transformacji
+* wdróż API do fazy Stage
+- użyć API Getaway domeny domyślnej
+- może być też dobrana domena użytkownika
+- wsparcie AWS Certificate Manager - darmowe SSL/TLS Certs.
+
+API Getaway - Same Origin Policy:
+jest ważnym elementem bezpieczeństwa aplikacji webowych. Pod zasadą SOP przeglądarka zezwala skryptom zawartym na pierwszej stronie na dostep do drugiej strony tylko jesli obie mają ten sam 'Origin'. Działa to zapobiegając Cross-Side-Scripting XSS Attacks.
+
+SOP jest egzekwowane przez przeglądarkę, ignorowane natomiast przez narzędzia typu CURL, POSTman.
+
+SOP rozluźnia mechanizm CORS zezwalający na alternatywne zasoby na stronie tzn. żadane z innej domeny niż pierwotna.
+
+API Getaway jest:
+* wysokopoziomowe
+* caching objętości do zwiększenia wydajności
+* małe koszty automatycznego skalowania
+* logi wyników w CloudWatch
+* używając JS/AJAX dla wielu domen należy upewnić się o włączeniu CORS w ustawieniach API Getaway
+*  CORS wykonywane po stronie klienta
+
