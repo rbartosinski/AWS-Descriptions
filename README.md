@@ -402,3 +402,259 @@ API Getaway jest:
 * używając JS/AJAX dla wielu domen należy upewnić się o włączeniu CORS w ustawieniach API Getaway
 *  CORS wykonywane po stronie klienta
 
+
+Import API
+
+Importowanie API z zewnętrznego pliku do API Getaway jest możliwe za pomocą Swagger 2.0.
+
+1. Importując API możesz stworzyć nowe API rejestrując POST request zawierające definicje Swagger z łądunkiem i konfiguracją endpointa.
+
+2. Możesz też zaktualizować istniejące API, używając PUT requesta zawierającego definicję Swagger. Można aktualizować nadpisując nową definicją, podmieniając w istniejących API. Specyfikujesz opcje używając parametru Mode Query w żądaniu URL.
+
+
+API Throttling
+
+Domyślnie w API Getaway stan oczekiwania na żądania jest ustawiony na 10 tys. rps.
+
+Maksymalne równoległe (concurrent) ustawienie może wynosić 5 tys. rps (na wszytskie API).
+
+Jeśli przekroczysz 10 tys. rps/1 API lub 5 tys. rps / wszystkie otrzymasz błąd 429: Too many requests.
+
+Możesz skonfigurować API Getaway - SOAP Webservice Passtrough.
+
+---
+
+## 6. AWS Lambda
+
+Lambda functions - wersjonowanie funkcji. 1 lub więcej funkcji, wynikiem czego można pracować z różnymi wersjami środowiska, jak testowe, rozwijane, produkcyjne.
+
+Każda wersja ma unikalną nazwę ARN - Amazon Resource Name.
+
+Po publikacji wersji staje się ona niemutowalna.
+
+Lambda utrzymuje ostatnią wersję funkcji w zmiennej $LATEST. Po aktualizacji kodu funkcji Lambda zamieni kod $LATEST na rzeczywiście ostatnią.
+
+Aliasy wersji
+
+Po aktualizacji/inicjalizacji tworzenia funkcji $LATEST możesz opuclikować wersję pierwszą.
+
+Tworząc alias nazwany np 'prod' będziesz mógł później używać do wywołania wersji pierwszej lambdy. W przypadku problemów można więc łatwo zrobić roll back do wersji wcześniejszej.
+
+Lambda:
+* bezserwerowa
+* scales-out (not up) automatycznie
+* funkcje są niezależne 1 event = 1 funkcja
+* lambda może wyłąpać (catch) inną lambdę, wówczas 1 event - x funkcji
+* wiele wersji funkcji Lambda
+* ostatnia funkcja używa zmiennej $LATEST
+* zakwalifikowana wersja używa $LATEST
+* wersje niemutowalne po publikacji
+* możliwe jest podzielenie ruchu używając różnych aliasów - zastępując $LATEST stworzonymi aliasami
+* może robic rzeczy globalnie
+* do backupu można użyć bucketu S3
+
+---
+
+## 8. AWS Step Functions
+
+AWS SF pozwalają wizualizować i testować bezserwerowe aplikacje.
+
+Dają możliwość graficznego wykazu i wizualizacji jak działąją poszczególne komponenty aplikacji w serii kroków. Czyni to prostym stawianie tego rodzaju wielo-krokowych aplikacji.
+
+Step Functions automatycznie wyłapują i śledzą każdy krok i każdą próbę błędu, aplikacja jest sprawdzana w przewidzianej kolejności.
+
+SF zapisuję log stanu każdego kroku dlatego można szybko zdiagnozować i debugować ew. błedy.
+
+---
+
+## 9. AWS X-Ray
+
+X-Ray - usługa zbiera dane nt. żądań generowanych przez daną aplikację i daje narzędzia do pokazu tych danychm filtrowania, wzmocnienia sygnału do indentyfikacji możlwości ew. optymalizacji.
+
+Dla każdego żądania można zobaczyć nie tylko prośbę o dostęp i odpowiedź,ale też szczegółowe informacje nt. wykonywania żądań w kolejnych usługach AWS, mikroserwisach, bazach danych czy API.
+
+Architektura aplikacji może być maksymalnie skomplikowana, X-Ray pozwoli śledzić i debugować mimo to.
+
+X-Ray SDK daje:
+- przechywytniki do dodania do kodu danej aplikacji, do śladów przychodzących przez żadania HTTP
+- client handlers - aplikacja może użyć innych usług AWS
+- client HTTP - wzywa inne wewnętrzne i zewnętrzne usługi.
+
+X-Ray - integracja:
+- ELB
+- Lambda
+- API Getaway
+- EC2
+- Elastic Beanstalk
+
+X-Ray - języki programowania:
+- Java
+- Go
+- Node.js
+- Python
+- Ruby
+- .NET
+
+---
+
+## 10. DynamoDB
+
+DynamoDB:
+- szybka i elastyczna NoSQL baza danych
+- dla aplikacji potrzebujących milisekundowych opóźnień na każdą skalę
+- pełne zarządzanie
+- wsparcie dla modeli dwudokumentowych i/lub klucz-wartość
+- niezawodna
+
+Dane umieszczone są na dysku SSD, rozciągnięte pomiędzy trzy geograficzne centra danych.
+
+2 modele spójności w D-DB:
+- Eventual Consistency Reads (domyślny) - najlepsza wydajność odczytu
+- Strongly COnsistency Reads - także do zapisywania
+
+Właściwości D-DB:
+- tabele
+- items (rząd w tabeli)
+- attributes (kolumna)
+- wsparcie dla klucz-wartość: klucz - nazwa, wartość - dane
+- dokumenty mogą być zapisywane w JSON, HTML, XML
+- przechowanie i odtwarzanie danych bazuje na kluczu PrimaryKey
+- 2 typy PrimaryKey:
+* PartitionKey - unikalny atrybut np. ID użytkownika
+* wartością PartitionKey jest wejście na wewnętrzną hash funkcję, która określa partycję lub fizyczną lokalizajcę, w której dane się znajdują
+
+Używając klucza partycji jako PartitionKey na dwóch itemach będzie ten sam PartitionKey.
+
+
+Kontrola dostępu do D-DB zarządzana jest przez IAM:
+- użytkownik z pozwoleniami
+- rola
+- warunek specjalny IAMConditions do zastrzeżenia dostępu dla wybranych rekordów/tabel np. warunek (Condition) dodany do zasad IAM Policy na udostępnienie użytkownikowi dostępu tylko do danych, gdzie PartitionKey pasuje do jego ID.
+- tzw. parametr Fine Grained Access Control: 'dynamodb: LeadingKeys'
+
+
+Przyspieszenie D-DB poprzez indexowanie:
+- Local Secondary Index
+- Global Secondary Index
+
+Local Secondary Index:
+- może zostać stworzony tylko podczas tworzenia tabeli
+- nie można go dodać, usunąć, zmienić później
+- ma ten sam PartitionKey co oryginalna tabela
+- ma inny klucz SortKey
+- daje możliwość różnego spojrzenia na dane, zorganizowania ich poprzez inne SortKeye
+- każde zapytanie (queries)bazujące na SortKey jest dużo szybsze używając indexu niż tabeli głównej
+- *** dobry PartitionKey np. User ID, SortKey - data utworzenia konta
+
+Global Secondary Index:
+- może być utworzony w dowolnym czasie
+- inny klucz PartitionKey niż w tabeli głównej
+- inne klucze SortKey
+
+Indexy umożliwiają szybkie wyszukiwanie na wybranych kolumnach danych, dają inny punkt widzenia na dane, oparty na alternatywnych kluczach PartiotionKey i SortKey.
+
+
+Query
+
+Operacja znajdywania itemów w tabeli bazującej na PrimaryKey i odrębnych wartościach do znalezienia np. znajdź atrybuty należące do user id = 212. Odpowiedź: first name, surname, email etc.
+
+Opcjonalnie można użyć SortKey dla zawężenia wyników. Np. jeśli SortKeyem jest data możesz zawęzić wyszukiwanie do 7 dni.
+
+
+Projection Expression
+
+Domyślnie zapytanie query zwraca wszystkie atrybuty dla itemów, ale można użyć Projection Expression, parametru który zwróci tylko niektóre, wybrane atrybuty. Np. chcąc zobaczyć same emaile.
+
+Query:
+- wyniki zawsze są sortowane wg SortKey
+- kolejność numeryczna - rosnąca (asc 1,2,3,4...)
+- można zmienić kolejność poprzez parametr 'ScanIndexForward' na False
+- kodowanie ASCII
+- domyślnie queries są Eventual Consistency
+- należy wyraźnie zaznaczyć jeśli ma być Strongly Cons.
+
+
+Scan
+
+Operacja scan bada każdy item w tabeli, domyślnie zwraca wszystkie atrybuty (można użyć Project Expression do zawężenia).
+
+Query bardziej wydajne niż scan:
+- scan zrzuca całą tabelę, następnie filtruje wartość do dostarczenia pożądanego wyniku - usuwając/odcinając niepotrzebne dane
+- dodatkowy krok działania w postaci usuwania danych w locie
+- im więcej danych tym scan dłużej trwa
+- scan dużej tabeli zużywa przewidzianą zaporę (provisioned throughput) dla tabeli w pojedyńczej operacji
+
+Domyślnie - scan przetwarza dane sekwencyjnie, po 1 MB, wzrasta z wielkością tabeli.
+
+Można wykonywać scan jednej tabeli w danym czasie.
+
+Można skonfigurować D-DB do użycia skanów róznoległych (parallel scans) zamiast logicznego dzielenia tabeli na indexy i skanować każdy segment rownolegle.
+
+Najlepiej jednak unikać skanów równoległych jeśli tabela lub index mają duże obciążenie odczytu/zapisu aktywności z innych aplikacji.
+
+
+Scan vs. Query:
+
+- Query znajduje items używając tylko PrimaryKey
+- scan bada każdy item
+- domyślnie wszystkie atrybuty są zwracane
+- użycie Projection Expression do oczyszczenia wyników (refine)
+- query - wyniki posortowane wg SortKey
+- domyślne sortowanie rosnące
+- tylko przy queries 'ScanIndexForward' na False
+- query bardziej wydajne
+
+Przyspieszanie:
+
+- redukcja dizłania query i scanów poprzez ustawienie mniejszej wielkości strony używając kilku operacji odczytu
+- izolacja operacji skanowania do wybranych tabel i segregacja ich do ruchu krytycznego aplikacji
+- skanowanie równoległe bardziej niż domyślne sekwencyjne
+- unikanie skanowania jeśli jest możliwość zaprojektowania tabel z użyciem query, get, BatchGetItem API
+
+
+D-DB: Read and Write Capacity Units
+
+Zapora Provisioned Throughput jest mierzona w Capacity Units
+
+Podczas tworzenia tabeli definiujesz Read C.U. i Write C.U.
+
+1 write Capacity Unit
+	= 1 x 1 KB/s
+1 read Capacity Unit
+	= 1 x 4 KB/s dla Strongly Consistency Read
+	= 2 x 4 KB/s dla Eventually Consistency Read
+
+Np.
+Zapis:
+100 x 512 b/s
+512/1 = 0.5 ~ 1 x 100 = 100 -> potrzebne 100 write C.U.
+
+Odczyt:
+80 x 3 KB/s
+3/4 = 0.75 ~ 1 x 80 = 80 -> potrzebne 80 Strongly C.U. lub 40 Event. C.U.
+
+
+DAX - przyspieszenie D-DB
+- clustered
+- managed
+- in-memory cache
+
+Dostarcza do 10x szybszej wydajności. Mikrosekundowa wydajność dla milionów RPS.
+
+Idealny dla wysoko-odczytywalnych lub obciążonych aplikacji
+- aukcyjne
+- gamingowe
+- sklepy podczas black friday
+
+DAX działa jako cache danych. Przeniesienie do cache w tym samym czasie co w oryginalnej instancji.
+
+Punkty dostępu to tzw. DAX Cluster.
+
+Jeśli żądane dane są w cache DAX dostarcza je do aplikacji.
+
+DAX nie pasuje do:
+- aplikacji z Strongly Cons. Reads (zaspokaja Eventually Cons. Reads)
+- aplikacji dużo zapisujących
+- aplikacji nie wymagających wielu operacji odczytu
+- nie wymagających mikrosekundowego czasu odpowiedzi
+
