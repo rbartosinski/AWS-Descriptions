@@ -201,7 +201,44 @@ Redis
 * wymagana jest trwałość (persistence)
 * chcesz używać różnych Av. Zones w przełączeniu awaryjnym.
 
-Elasticache używane do odciążania DB opartych na odczycie danych read-heavy stress-load, raczej nie do zapisów
+Elasticache używane do odciążania DB opartych na odczycie danych read-heavy stress-load, raczej nie do zapisów np.
+- Social Networking
+- Gaming media sharing
+- Q&A portals
+
+Często odkładane dane są przechowywane w pamięci dla mało opóźnionego dlaszego dostępu.
+
+Dobre także dla obliczeń np. silniki rekomendacji.
+
+Może być używane do przechowania wyników wymiany informacji wyjście/wejście intensywnie obciążonych baz danych z zapytaniami lub wyjścia (output) innych intensywnych obliczeń.
+
+
+Elasticache Lazy Loading:
+- tylko żądane dane są cacheowane
+- unika cacheowania bezużytecznymi danymi
+- najpierw żądanie inicjujące, następnie żądanie do bazy, następnie zapisanie w cache
+- nieświeże dane - dane w cache aktualizowane tylko kiedy ich brakuje, nie uzupełniają się automatycznie ze zmianami w bazie danych
+
+LL Time To Live (TTL):
+- specyfikacja sekund dopóki klucze (danych) się nie przeterminują do uniknięcia nieświeżych danych trzymanych w cache
+- LL traktuje przeterminowany klucz jako brak pamięci i przyczynia się do wznowienia wyjęcia przez aplikację danych z bazy zapisując je z nowym TTL
+- nie eliminuje nieświeżych danych, ale pomaga ich uniknąć
+
+
+Elasticache Write Through:
+- dodaje lub aktualizuje dane do cache podczas zapisu do bazy danych
+- dane w cache nigdy nie są nieświeże
+- kara za zapis: każdy zapis pociąga za sobą zapis do cache 
+- użytkownicy bardziej tolerancyjni na ew. opóźnienia podczas aktualizacji niż podczas kolejnego odczytania
+- jeśłi łańcuch danych zawiedzie dane są tracowne do ponownego zapisu w bazie (może pomóc integracja z Lazy Loading)
+
+
+- Cache są pomiędzy bazą danych a aplikacją.
+- Dwie strategie cacheowania LL i WT.
+- LL cachuje tylko podczas żądań danych
+- ELasticache Node zawodzi nie fatal, ale usuwając cache
+- Uniknięcie nieświeżości danych poprzez implementację TTL
+
 
 RedShift dobre do odciążania baz danych związanych z analizą OLAP
 
@@ -658,3 +695,134 @@ DAX nie pasuje do:
 - aplikacji nie wymagających wielu operacji odczytu
 - nie wymagających mikrosekundowego czasu odpowiedzi
 
+---
+
+## 11. Key Management Service
+
+AWS KMS - usługa do zarządzania ułatwiająca tworzenie i kontrolę nad kluczami szyfrowania używanymi do szyfrowania danych. Zintegrowana z innymi usługami jak EBS, S3, Redshift, RDS i innymi.
+
+The Customer Master Key - klucz używany do rozszyfrowania danych w kluczu ('envelope key'). Envelope Key używany do rozszyfrowania danych.
+
+The Customer Master Key:
+CMK:
+- alias
+- data utworzenia
+- opis
+- stan klucza
+- KEY MATERIAL (dostarczony przez klienta czy przez AWS)
+
+Nie powinno być nigdy eksportowane.
+
+Ustalanie CMK:
+- utwórz alias i opis
+- wybierz materiał
+- zdefiniuj Key Administrative Permissions: IAM users/roles, nie poprzez KMS API
+- zdefiniuj Key Usage PermissionsL IAM users/roles mogą żywać klucza do szyfrowania i rozszyfrowania danych
+
+Key Material Options:
+- Use KMS generated key material
+- your own material
+
+Polecenia KMS API:
+- aws kms encrypt
+- aws kms decrypt
+- aws kms re-encrypt
+- aws kms enable-key-rotation
+
+---
+
+## 12. Simple Queue Service
+
+SQS - Simple Queue Service
+
+SQS - usługa dająca dostęp do kolejki wiadomości, które mogą być użyteczne w przedstawianiu wiadomości podczas oczekiwania na wykonanie obliczeń.
+System dystrybucji kolejki który daje możliwości szybkiego wysłania kolejki wiadomości z jednego komponentu aplikacji gdzie są one generowane do innego w którym są konsumowane. Kolejka jest roboczym repozytorium dla wiadmości, które oczekują przetworzenia.
+
+Dzięki SQS możesz rozdzielić (decouple) komponenty aplikacji tak żeby działały niezależnie, komunikując się zarządzanymi wiadomościami.
+
+Każdy komponent aplikacji może umieścić wiadomość w kolejce. Wiadomości mogą mieć do 256 KB teksu lub każdego innego formatu. Każdy komponent może następnie ponownie odczytać wiadomości , co da się zaprogramować używając SQS API.
+
+Kolejka działa jako bufor pomiędzy komponentami produkującymi i zapisującymi dane, a komponenty odczytują dane do przetworzenia. Tzn. że kolejka załatiwa problem związany z szybszą produkcją danych niż możliwościami ich konsumpcji lub ich przetworzenia, lub jeśli producent lub konsument są połączone do sieci z przerwami.
+
+2 typy kolejek:
+- Standard Queues (domyślna)
+- FIFO Queues (First-In-First-Out)
+
+Std queue daje niemal nielimitowaną ilość transakcji na sekundę. Gwarantuje że wiadomości zostaną dostarczone przynajmniej raz (at least once). W każdym razie, czasami może zdarzyć się że jedna kopia wiadomości zostanie dostarczona dwukrotnie (ze względu na architekturę wysokiej dystrubucji pozwalającą na wysoką wydajność). Kolejność w Std. Q. jest najmniej wysiłkowa i zazwyczaj wiadomości są dostarczane w kolejności wysłania.
+
+Fifo uzupełnia std. q. Najważniejszym udogodnieniem jest dostarczanie wiadomości dokładnie w tej kolejności w której zostały wyłane. Wiadmość jest odbierana jeden raz i jest dostępna do jej przetworzenia i usunięcia. Duplikatu nie są włączane do kolejki. FIFO wspiera też wiadomości do grup poprzez multiple ordered message groups w jednej kolejce. FIFO ma limit do 300 transakcji na sekundę, objętość jak w std. Dobre np. dla transakcji bankowych, gdzie zdarzenia muszą mieć ścisłą kolejność.
+
+SQS:
+- pull-based (wciąganie)
+- wiadomości 256 KB
+- wiadomości mogą być trzymane w kolejce od 1 min. do 14 dni
+- domyślny okres przechowania ustawiony na 4 dni
+- gwarancja przetworzenia wiadomości przynajmniej raz
+
+SQS - Visiblity Timeout - Limit czasu widoczności:
+- ilość czasu kiedy wiadomość jest niewidoczna w kolejce dopóki czytelnik jej nie podniesie. Dostarczone zadanie jest przetwarzane przed upływem limitu widoczności, następnie wiadomość będzie usunięta z kolejki. Jeśli zadanie nie zostanie przetworzone w tym czasie, wiadomość znów będzie widoczna i kolejny odczytujący przetworzy zadanie. Wynikiem tego wiadomośc może być dosatrczona dwukrotnie.
+
+Domyślny czas widoczności mija po 30 sekundach.
+Nalezy zwiększyć czas jeżeli zadanie zajmuje więcej. Max to 12 godzin.
+
+SQS Long Polling - sposób na otrzymywanie wiadomości z kolejki SQS. Podczas gdy regularne wiadomości dochodzą w trybie short polling - natychmiastowo, long polling nie zwraca odpowiedzi dopóki wiadomość nie odtrze do kolejki, lub skończy się czas long poll. Long poll może zaoszczędzić pieniądze.
+
+---
+
+## 13. Simple Notification Service
+
+SNS - Simple Notification Service - usługa dająca łatwe do skonfigurowania, operowania, wysyłania powiadomienia z chmury.
+
+Przynosi programistom wysoko skalowalne, elastyczne, dobre kosztowo, pojemności do publikowania wiadomości z aplikacji, natychmiastowo dostarczając je do subskrybentów lub innych aplikacji.
+
+Wypychanie powiadomień (push) do urządzeń Apple, Google, Fire OS, Windows podobnie jak urządzenia Android w Chinach z Baidu Cloud Push.
+
+Poza wypychaniem (pushing) powiadomień z chmury bezpośrednio do urządzeń mobilnych SNS także dostarcza powiadomienia poprzez SMSy lub emaile do kolejki SQS lub do każdego endpointa HTTP.
+
+Powiadomienia SNS mogą zaangażować funkcje Lambda - kiedy wiadomość jest publikowana do tematu SNS (SNS topic) a lambda jest na liście subskrypcji, funkcja może zostać wywołana z ładunkiem, który zawira publikowana wiadomość. Lambda otrzymuje ładunek, zawartość wiadomości jako parametr wejściowy, nast następnie może manipulować informacją zawartą we wiadomości i opublikować wynik jako kolejny temat SNS, lub wysłać wiadomość do innych usług AWS.
+
+SNS zezwala na grupowanie różnych odbiorców tematów. Temat jest 'access pointem' zezwalającym odbiorcom na dynamiczne subskrybowanie na identyczną kopię tych samych powiadomień.
+
+Jeden temat (topic) może wesprzeć dostarczenie do różnych typów endopintów np. można zgrupować razem użytkowników iOS, Androida, czy odbiorców SMS. Publikujkąc raz temat, SNS dostarczy dobrze sformatowane pod każde urządzenie kopię tej samej wiadomości do każdego subskrybenta.
+
+Do zapobieżenia zgubienia wiadomości publikowanych za pomocą SNS, są one przechowywane w różnych strefach Av. Zones.
+
+SNS:
+- push-based (wypychanie)
+- publication/subscription model (pub/sub)
+- proste API i integracja z aplikacjami
+- elastyczne dostarczanie wiadomości ponad różnymi protokołami transportu
+- płatność za wykorzystaną usługę bez wcześniejszych kosztów
+- oparte na sieci zarządzanie przez AWS Management Console
+
+
+SNS vs. SQS
+- obie usługi dot. wysyłania wiaodmości
+- SNS - push
+- SQS - pull
+
+
+Uzytkownik płaci za:
+- $ 0,50 za milion żądań SNS
+- $ 0,06 za 100 tys. powiadomień dostarczonych przez HTTP
+- $ 0,75 za 100 powiadomień SMS
+- $ 2,00 za 100 tys. powiadomień email
+
+SNS - fan out messages (rozwijanie) do dużej liczbny odbiorców
+
+---
+
+## 14. Simple Email Service
+
+SES - emaile - skalowalna, wysoko dostęp na usługa wysyłania emaili zaprojektowana do pomocy zespołom marketingowym i aplikacjom wysyłającym dane marketingowe, powiadomienia, emaile dot. transakcji, dla użytkowników płacących za wykorzystanie usługi.
+
+Może być też używana do odbierania maili: wiaodmości przychodzące odbierane będą dostarczane do bucketa S3.
+
+Wiadomości przychodzące moga zostać przechwycone też przez Lambdę lub powiadomienia SNS.
+
+SES - przykłady użycia:
+- automatyzacja emaili
+- potwierdzenia zakupu, powiadomoienia o nowościach, zmianie statusu zamówienia
+- komunikacja markjetingowa, newslettery, reklamy
+
+Wymagany jest email do rozpoczęcia wysyłania (nie oparte na subsrypcji).
