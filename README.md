@@ -826,3 +826,82 @@ SES - przykłady użycia:
 - komunikacja markjetingowa, newslettery, reklamy
 
 Wymagany jest email do rozpoczęcia wysyłania (nie oparte na subsrypcji).
+
+---
+
+## 15. Elastic Beanstalk
+
+Elastic Beanstalk - usługa do wdrażania i skalowania aplikacji webowych napisanych w językach: Java, .NET, PHP, Node.js, Python, Ruby, Go, także kontenerów Dockera i innych serwerowych platform jak Apache Tomcat, Ngin, Passenger czy IIS. Dzięki EB programiści nie muszą przejmować się infrastrukturą potrzebną do uruchomienia aplikacji.
+
+Po wgraniu kodu EB zajmie się wdrożeniem, zabezpiecznieniem pojemności, równowagą obciążenia, auto-skalowaniem i stanem aplikacji.
+
+Zachowujesz pełną kontrolę usług bazowych AWS, które zostaną użyte do uruchomienia aplikacji, płacąc tylko za wymagane zasoby jak instancje EC2, czy buckety S3.
+
+Elastic Beanstalk:
+- najszybszy i najproszty sposób do wdrożenia aplikacji w AWS
+- automatyczne skalowanie (up and down)
+- można wybrać optymalną dla siebie instancję EC2
+-pełna kontrola administracyjna nad usługami potrzebnymi do uruchomienia aplikacji
+- zarządzana platforma aktualizacji zawierająca aktualizacje automatyczne do OS i języków programowania
+- monitorowanie i zarządzanie stanem aplikacji przez pulpit
+- integracja z CloudWatch i X-Ray dla wydajności danych i analiz
+
+Jeśłi wymagany jest serwer EB stworzy odpowiednią instancję. 
+
+Typy wdrażania poprzez Elastic Beanstalk:
+- all at once
+- rolling
+- rolling with additional batch
+- immutable
+
+Dwa ostatnie typy zapewniają pełne utrzymanie aplikacji podczas wdrożenia.
+
+All at once:
+- wdrażanie nowej wersji do wszystkich instancji symultaniczniel
+- wszystkie instancje są wyłączone dopóki trwa wdrażanie
+- wrażenie postoju podczas wdrażania
+- nie najlepsze dla systemów z misją krytyczną
+- jeśli aktualizacja zawiedzie należy wykonać cofnięcie (roll back) zmian poprzez ponowne wdrożenie kodu oryginalnej wersji do wszystkich instancji
+
+Rolling (cofnięcie):
+- wdrażanie nowej wersji partiami (batches)
+- każda partia instancji jest wyłączana podczas wdrażania
+- objętość środowiska będzie zredukowana do numeru instancji w partiach dopóki trwa wdrożenie
+- nie najlepsze opcja dla systemów wrażliwych
+- jeśli aktualizacja zawiedzie należy wykonać dodatkowe uruchomienie aktualizacji do cofnięcia zmian
+
+Immutable:
+- wdrożenie nowej wersji do nowych instancji w nowych autoskalowanych grupach
+- kiedy nowe instancje zostaną uruchomione poprawnie ich stan zostanie sprawdzony, zostaną one przeniesione w miesjce istniejących grup autoskalowania, finalnie zastępując stare instancje które zostaną wyłączone
+- utrzymuje pełne działanie aplikacji podczas wdrażania
+- wpływ nieudanych aktualizacji jest znikomy, należy jedynie wyłączyć nowe grupy autoskalowania
+- preferowany typ wdrożenia dla aplikacji misji krytycznych produkcji
+
+
+Konfigruacja Elastic Beanstalk przeprowadzana jest za pomocą plików konfiguracyjnych (np. można zdefiniować co należy zainstalować, stworzyć środowisko Linuxa, odpalić komendy shell, wyspecjalizować usługi czy skonfigurować load ballancer).
+
+Plik konfiguracyjny w formacie YAML lub JSON. Opcjonalna może być nazwa pliku ale musi mieć rozszerzenie '.config' i zostać zapisany w folderze '.ebextensions'. Ten z kolei folder należy zapisać w katalogu głównym, w kórym znajduje się kod całej aplikacji.
+
+
+RDS i Elastic Beanstalk
+
+Żeby zezwolić aplikacji wdrożonej przez EB na dostęp do relacyjnych baz RDS należy wykonać dwa dodatkowe kroki podczas konfiguracji:
+- dodatkowa Security Group musi zostać dodana do środowiska grupy auto-skalowania
+- potrzebne jest także dostarczenie 'connection string configuration information' do serwera twojej aplikacji (endpoint, lub hasło).
+
+2 typy uruchomienia RDS z EB:
+Razem:
+- podczas wyłączenia środowiska EB baza zostanie także wyłączona
+-szybkie i łatwe uruchomienie bazy
+- odpowiednie dla środowisk deweloperskich i testowych
+
+Osobno:
+- dodatkowy krok konfiguracyjny z użyciem Security Group i Connection Information
+- odpowiednie dla środowisk produkcyjnych, bardziej elastyczne
+- zezwala na połączenie z różnych środowisk do jednej bazy, można wyłączyć aplikację bez wpływu na bazę
+
+---
+
+16. 
+
+
