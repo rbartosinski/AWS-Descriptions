@@ -50,6 +50,32 @@ Access Key i Secret Access Key można regenerować
 
 Zasada 1 Key Pair - 1 użytkownik
 
+
+3 typy IAM Policies:
+- Managed Policies - zarządzane przez AWS zasady domyślne
+- Customer Managed Policies - zarządzane przez ciebie
+- Inline Policies - zarządzane przez ciebie zszyte z pojedyńczym użytk, grupą, rolą
+
+
+Managed Polcies - zasady tworzone i administrowane przez AWS.
+
+AWS dostarcza MP dla większości użytkowników w przypadkach opartych na funckji użytkownika np. dostęp do Dynamo DB, code commit itd.
+
+Te zasady pozwalają na przypisanie właściwych uprawnień do użytkowników, grup czy ról bez konieczności pisania tych uprawnień.
+
+Pojedyńcza zasada MP może być dołączona do wielu użytkowników, grup czy ról z tym samym kontem AWS, lub poprzez różne konta.
+
+Nie można zmienić uprawnień zdefiniowanych w AWS MP.
+
+
+Inline Policies - zasady zszyte z kontem wybranego użytkownika, grupą lub rolą, na którą zostały zaaplikowane. Relacja 1:1 pomiędzy jednostką a zasadą.
+
+Podczas usunięcia użytkownika, grupy czy roli zszyta zasada także zostanie usunięta.
+
+W większości przypadków AWS poleca używanie Managed Policies.
+
+Zasady Inline są funkcjonalne kiedy chcesz być pewien, że określone zezwolenia nie są dostępne żadnemu innemu żytkownikowi, grupie, czy roli poza tą w której zostały użyte.
+
 ---
 
 ## 2. EC2 - Elastic Compute Cloud
@@ -902,6 +928,120 @@ Osobno:
 
 ---
 
-16. 
+16. Kinesis
+
+Amazon Kinesis - platforma AWS do wysyłania danych streamingowych. Kinesis sprawia, że łatwo analizować dane streamingowe, daje też możliwość do zbudowania własnej aplikacji.
+
+Streaming - dane generowane bez przerwy poprzez tysiące zasobów, zazwyczaj wysyłane jako 'nagrania' symultanicznie w małych wielkościach.
+
+3 typy Kinesis:
+- Streams
+- Firehose
+- Analitycs
+
+Kinesis Streams:
+- Video Streams - bezpieczne wysyłanie syteamingu video z urządzeń podłączonych do AWS dla analiz i uczenia maszynowego
+- Data Streams - budowa aplikacji przetwarzających dane w czasie rzeczywistym
+
+Kinesis Firehose:
+- przechwytywanie, transformacja, wgranie danych streamingowanych do przechowania na zbliżone do czasu rzeczywistego anazlizy z urzyciem BI tools
+
+Można skonfigurować Lambdę do subskrybcji Kinesis Sreams i wykonania funkcji przed wysłaniem przetworzonych danych do finałowego miejsca przeznaczenia.
+
+---
+
+17. Cognito
+
+Web Identity Federation - daje użytkownikom aplikacji w AWS dostęp do ich zasobów po tym jak pomyślnie zostaną zalogowani (authenticated) do popularnych serwisów jak Amazon, Facebook czy Google.
+
+Po udanej weryfikacji użytkownik otrzymuje kod autoryzacyjny z Web ID Provider który zostanie zamieniony z robocze (temporary) AWS security credentials.
+
+Amazon Cognito dostarcza WIF:
+- zalogowanie i wylogowanie dla aplikacji
+- dostęp dla gości
+- pełni rolę Identity Broker pomiędzy aplikacją a Web ID providers bez żadnego dodatkowego kodu
+- Synchronizacja danych użytkownika na różnych urządzeniach
+- Usługa polecana na wszystkie aplikacje urządzeń mobilnych
+
+Cognito to polecane podejście do WIF używając kont social mediów jak Facebook.
+
+Broker COgnito pomiędzy aplikacją a kontami WIF przenosi roboczo uprawninia które zostaną zmapowane do roli IAM pozwalającej na dostęp do wymaganych zasobów.
+
+Nie ma potrzeby do załączenia lub przechowania uprawnień AWS lokalnie w aplikacji, na urządzeniach.
 
 
+Cognito User Pools
+
+Katalogi użytkowników używane do zarządzania funkcjonalnościami logowania i rejestrowania dla aplikacji mobilnych.
+
+Użytkownik może się zalogować:
+- bezpośrednio do User Pool lub
+- pośrednio przez providera jak facebook, Amazon czy Google.
+Cognito działa jako Identity Broker pomiędzy ID provider a AWS. Pomyślna autoryzacja generuje numer JSON Web Tokens (JWTs).
+
+Identity Pools
+
+daje możliwość unikalnej identifikacji dla Twoich użytkowników i autoryzację ich przez identity providers. Z potwierdzoną tożsamością możesz uzyskać roboczo, limited-privilege AWS credentials do dostępu dp innych usług AWS.
+
+
+Push Synchronization
+
+Cognito śledzi związek pomiędzy tożsamością użytkownika a różnymi użądzeniami na których się zalogował.
+
+W kolejności dostarczania użytkownikowi wrażenia ciągłego dostępu do aplikacji Cognito używa Push Synchronization do wypchnięcia (push) aktualizacji i zsynchronizowania danych użytkownika pomiędzy różne urządzenia.
+
+SNS jest użyty do wysłania cichych powiadomień do wszystkich urządzeń związanych z daną tożsamością (User ID) podczas kiedy dane są przechowywane w chmurze.
+
+---
+
+18. Continous Integration / Continous Deployment
+
+Najlepsze praktyki CI & CD dla rozwoju i wdrożenia aplikacji pozwalają systematycznie wprowadzać zmiany w aplikacji podczas kiedy system i usługi są stabilnie utrzymane.
+
+Firmy jak AWS, Netfilx, Google czy Facebook są pionierami w tym podejściu do aktualizacji, pomyślnie wprowadzając tysiące zmian dziennie.
+
+Continous Integration:
+- system testów uruchamia testy automatyczne na nowo zbudowanej aplikacji
+- weryfikacja bugów, zapobiega wprowadzeniu ich do 'master code'
+- CI skupia się na małych zmianach kodu które są sukcesywnie komitowane w repozytorium głównym, jednorazowo pomyślnie testowane
+- aktualizacje przynajmniej raz na dzień pozwalają wielu programistom pracę nad tą samą aplikacją
+
+Continous Deployment:
+- przeniesienie idei automatyzacji na kroki wdrożeniowe, automatyczne wdrożenie nowego kodu zaraz za pomyślnymi testami, eliminując kroki ręczne
+- kod jest automatycznie wdrażany najszybciej jak to możliwe po przejściu faz ustalonych przez ciebie w procesie wdrożeniowym (budowa, testowanie, pakowanie)
+- małe zmiany są publikowane skucesywnie i wcześnie
+- praktyki wymagają żeby budowa, testy i wdrożenie kodu były w pełni zautomatyzowane, CD dodatkowo automatyzuje proces publikacji
+
+Narzędzia CI & CD:
+
+- repozytoria kodu - kontrola źródeł - CodeCommit
+- zarządzanie budową kodu - kompilacja kodu źródłowego, uruchamianie testów i paczek kodu - CodeBuild
+- framework testowy
+- spakowana aplikacja wdrożenia - automatyzacja wdrożenia do EC2, systemy wcześniej istniejące i Lambda - CodeDeploy
+- środowiska
+
+Całość - CodePipeline - pełna automatyka przepływu pracy całego procesu publikacji.
+
+
+Code Commit
+
+W pełni zarządzana usługa kontroli kodu zapewnijąca bezpieczne i wysoko skalowalne narzędzie do pracy z repozytoriami Git.
+
+Użytkownicy tworzą kopie (branche) master repo, które aktualizują niezależnie od siebie bez wpływu na pracę innych programistów.
+
+Zapisane zmiany kodu które są gotowe do wdrożenia zapisywane są jako commity.
+
+Kiedy kod jest zaktualizowany, zmiany są przekładane (merged) do master repo. CC śledzi zmiany w kodzie.
+
+CC daje wszystkie funkcjonalności Gita, można więc użyć Gita z local machine do komunikacji z CC.
+
+Dane są szyforwane w ruchu i spoczynku.
+
+CC oparte na Gicie, centralnym repo dla całego kodu, plików binarnych, grafiki czy bibliotek.
+
+CC utrzymuje historię wersji.
+
+CC aktualizuje kod z różnych zasobów i umożliwa współpracę.
+
+
+CodePipeline
