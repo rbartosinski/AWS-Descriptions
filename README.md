@@ -1045,3 +1045,119 @@ CC aktualizuje kod z różnych zasobów i umożliwa współpracę.
 
 
 CodePipeline
+
+Narzędzie w pełni zarządzane dające efekt CI & CD.
+
+CP może zorganizować budowę, testowanie i wdrożenie aplikacji za każdym razem gdy zmieni się kod - bazując na określonym przez użytkownika procesie publikacji.
+
+Tradycjonalne podejście wdrożenia jest wolne i zawierające błędy, podczas gdy automatyzacja procesu pozwala programiście często dodawać nowe funkcje aplikacji czy sprawdzać bugi. Jest to szybki sposób na reakcję i zmianę bugów.
+
+Prosty model: Aktualizacja kodu - Budowanie - Testy - Wdrożenie.
+
+Definiujesz co będzie się działo w każdej fazie używając Pipeline GUI lub CLI.
+
+Integracja CP z CodeCommit, CodeBuild, CodeDeploy, Lambda, Elastic Beanstalk, CloudFormation, Elastic Container Service a także narzędziami typu Git czy Jenkins.
+
+Każda zmiana kodu wypychana do repo automatycznie włącza przepływ pracy CP, przechywtuje akcję zdefiniowaną dla każdej fazy.
+
+Pipeline się zatrzyma jeśli jedna z faz zawiedzie. Jeśli np testy automatyczne zawiodą wszystko zostanie zatrzymane, tak aby bugi były możliwe do naprawienia jeszcze przed wdrożeniem.
+
+CP automatyzuje wdrożenie end-to-end opierając się na zdefiniowanym przez użytkownika schemacie.
+
+CP może być skonfigurowane automatycznie do wprowadzania zmian wykrytych w repo.
+
+
+CodeDeploy
+
+The AppSpec File - plik używany do zdefiniowania parametrów któ©e będą użyte we wdrożeniu za pomocą CodeDeploy.
+
+Struktura pliku zależy od tego co wdrażasz do Lambdy, instancji EC2 czy wcześniej istniejących systemów.
+
+
+1. AppSpec File - Lambda:
+Dla Lambdy AppSpec File może być zapisany w formacie YAML lub JSON i zawierać następujące pola:
+- version - zarezerwowane dla przyszłego użycia, aktualnie jedyna zezwolona wartość to 0.0
+- resources - nazwa i właściwości fukcji Lambda do wdrożenia
+- hooks - specyfikuje funkcję do uruchomienia jako set points w cyklu wdrożenia do zweryfikowania wdrożenia np. weryfikacja testów do uruchomienia przez zezwoleniem na ruch, do wysłania do nowowdrożonych instancji (parametry 'BeforeAllowTraffic' i 'AfterAllowTraffic')
+
+BeforeAllowTraffic - hook używany do określenia zadań lub funkcji do wykonania przed przekierowaniem ruchu do nowo uruchomionych instancji wdrożenia Lambdy (np. weryfikacja poprawnej pracy funkcji).
+
+AfterAllowTraffic - określenie zadań do wykonania po wdrożeniu (np. czy funkcja obsługuje ruch prawidłowo, zgodnie z przeiwdywaniem).
+
+
+2. AppSpec File - EC2 i aplikacje wcześniej istniejące - napisany w formacie YAML:
+- version - zarezerwowane dla przyszłego użycia, aktualnie jedyna zezwolona wartość to 0.0
+- os - określenie OS i jego wersji
+-files - lokalizacja plików potrzebnych do skopiowania (źródło i cel)
+- hooks - cykl życia hooków dających specyfikację skryptów wymaganych do uruchomienia ste points w cyklu wdrożenia (np. rozpakowanie plików aplikacji przed wdrożeniem, uruchomienie testów na nowo wdrożonej aplikacji, rejestracja instancji czy load ballancerów)
+
+- BeforeBlockTraffic - uruchamia zadania przed deregistered a load ballancer
+- BlockTraffic - usuwa instancje z load ballancera
+- AfterBlockTraffic - uruchamia zadania na instancji za deregistered a load ballancer
+- Application Stop
+- DownloadBundle - The CodeDeploy Agent kopije aplikację do środ. roboczego
+- BeforeInstall - szczegóły i skrypty przedinstalacyjne: backup wersji dotychczasowej, deszyforwanie plików
+- Install - The CodeDeploy Agent: z roboczego do właściwych instancji
+- AfterInstall - konfiguracja zadań, zmiana uprawnień plików
+- ApplicationStart - restart wszystkich usług zatrzymanych wcześniej
+- ValidateService - szczegóły nt. sprawdzenia działania usług
+
+Plik AppSpec defiuje wszystkie parametry potrzebne do wdrożenia.
+
+Plik AppSpec musi być umieszczony w katalogu głównym.
+
+
+CodeBuild - Docker
+
+Elastic Container Service - w pełni zarządzana platforma klastrowa (clustered) pozwalająca na uruchomienie obrazów Dockera w chmurze.
+
+CodeBuild - w pełni zarządzana usługa budowania uruchamiająca ustawienie komend, które zdefiniujesz np. kompilacja kodu uruchamiającego testy.
+
+Komendy Dockera do zbudowania, tagowania i wypchnięcia obrazu do repozytorium ECR:
+- docker build -t myimagerepo .
+- docker tag myimagerepo:latest725350006743.dkr.ecr.eu-central-1.amazonaws.com/myimagerepo:latest725350006743
+- docker push 725350006743.dkr.ecr.eu-central-1.amazonaws.com/myimagerepo:latest
+
+---
+
+19. CloudFormation
+
+CloudFormation - usługa daje zarządzanie, konfigurację i zabezpieczenie twojej infrastruktury AWS z kodu.
+
+Zasoby definiowane są używając CloudFormation template.
+
+CloudFormation interpretuje szablony i tworzy odpowiednie wywołania API to sworzenia zdefiniowanych zasobów.
+
+2 formaty: YAML i JSON.
+
+CloudFormation:
+- infrastruktura zabezpieczona dokładnie, bez pomyłek
+- mniejszy czas i wysiłek w konfiguracji ręcznej
+- możliwość wersjonowania i parowego sprawdzania szablonu
+- darmowa (opłaty za stworzone instancje, usługi bazowe)
+- może być używana do aktualizacji, backupów, usunięć
+
+Przykładowe parametry:
+
+AWSTemplateFormatVersion, Description, Metadata, Resources, Parameters (input custom values), Conditions, Mappings (custom mappings like region), Transforms(reference code located in S3).
+
+
+SAM - Serverless Application Model to rozszerzenie CloudFormation używane do zdefiniowania aplikacji bezserwerowej.
+
+Uproszczona składnia dla zdefiniowania zasobów bezserwerowych: APIs, Lambda F., Dynamo DB Tables itd.
+
+Można użyć SAM Command Line Interface do spakowania kodu do wdrożenia, wgranie na S3 i wdrożenie aplikacji.
+- sam package
+- sam deploy
+
+
+AWS CI/CD:
+- CodeCommit - usługa kontroli źródła Git
+- CodeBuild - usługa kompilacji kodu, uruchamianie testów, pakowanie kodu
+- CodeDeploy - automatyczne wdrażanie do instancji EC2, już działających systemów, Lambdy
+- CodePipeline - narzędzie przepływu pracy, pełna automatyka całekgo procesu (budowa, testy, wdrożenie)
+
+
+2 podejścia do wdrożeń:
+- In-Place lub Rolling update - zatrzymujesz aplikację na każdym hoście i wgrywasz ostatni kod. Dot. tylko EC2 lub wcześniej istniejących systemów. Do cofnięcia zmian trzeba od nowa wgrać poprzednią wersję kodu.
+- Blue/Green - nowe instancje są zabezpieczane i nowa aplikacja jest wdrażana na nowe. Ruch jest kierowany do nowych instancji wg własnego planu. Wspiera EC2, wcześniej istniejące, i Lambdy. Cofnięcie zmian wymaga przekierowania ruchu na oryginalne instancje. Blue - aktywne środowisko, green - nowe.
