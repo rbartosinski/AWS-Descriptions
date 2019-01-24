@@ -4,6 +4,7 @@ Knowledge base about basics and standards in Amazon Web Services (in Polish).
 
 
 1. [IAM - Identity and Access Management](#1.IAM---Identity-and-Access-Management)
+2. [EC2 - Elastic Compute Cloud](2.-EC2---Elastic-Compute-Cloud)
 
 
 ---
