@@ -1,6 +1,6 @@
-# AWS-Descriptions
+# Amazon Web Services - Descriptions of services and technologies
 
-Knowledge base about basics and standards in Amazon Web Services (in Polish).
+Knowledge base about basics and standards in AWS (in Polish).
 
 
 1. [IAM - Identity and Access Management](#question1)
