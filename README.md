@@ -5,11 +5,12 @@ Knowledge base about basics and standards in Amazon Web Services (in Polish).
 
 1. [IAM - Identity and Access Management](#question1)
 2. [EC2 - Elastic Compute Cloud](#question2)
+3. [3. RDS - Relational Database Service](#question3)
 
 
 ---
-
-## 1. Identity and Access Management <a name="question1"></a>
+<a name="question1"></a>
+## 1. IAM - Identity and Access Management
 
 IAM:
 * scentralizowana kontrola konta AWS
@@ -80,8 +81,8 @@ W większości przypadków AWS poleca używanie Managed Policies.
 Zasady Inline są funkcjonalne kiedy chcesz być pewien, że określone zezwolenia nie są dostępne żadnemu innemu żytkownikowi, grupie, czy roli poza tą w której zostały użyte.
 
 ---
-
-## 2. Elastic Compute Cloud <a name="question2"></a>
+<a name="question2"></a>
+## 2. EC2 - Elastic Compute Cloud
 
 Elastic Compute Cloud (EC2) - instancja elastycznie zmieniającej rozmiar chmury obliczeniowej.
 
@@ -140,7 +141,7 @@ Route 53
 * domeny dla instancji EC2, load ballancerów, bucketów S3
 
 ---
-
+<a name="question3"></a>
 ## 3. RDS - Relational Database Service
 
 Online Transaction Processing OLTP
@@ -272,7 +273,7 @@ Elasticache Write Through:
 RedShift dobre do odciążania baz danych związanych z analizą OLAP
 
 ---
-
+<a name="question4"></a>
 ## 4. S3 - Simple Storage Service
 
 S3 - Simple Storage Service - zapisywanie obiektów:
@@ -373,7 +374,7 @@ Dodanie parametru 'x-amz' do headera żądania mówi S3 żeby użyć szyfrowania
 Możesz wymusić użycie SSE definiując Bucket Policy, które odrzucają żądania S3 PUT bez dołączonego headera 'x-amz'.
 
 ---
-
+<a name="question5"></a>
 ## 5. CloudFront
 
 Edge location - miejsce, w którym treści są cache'owane, mogą być też zapisywane. Speracja regionów AWS Region Availibility Zones.
@@ -424,7 +425,7 @@ Performance Optimization dla S3:
 * mixed workloads: ustwić random prefix np. HexHash do nazwy klucza zapobiegając powielaniu nazw plików zapisanych na tej samej partycji. Uniknąć sekwencyjnego klucza nazw obiektów
 
 ---
-
+<a name="question6"></a>
 ## 6. API Getaway
 
 API Getaway - w pełni zarządzana usługa przynosząca API na każdą skalę, będące dodatkowo łatwe w publikacji, utrzymaniu, monitorowaniu i zabezpieczaniu. Za pomoca kilku kliknięć możesz stworzyć API działające na zasadzie Front Doors dla swoich aplikacji np. uruchomionych na EC2, AWS Lambda czy każdej innej webowej aplikacji.
@@ -489,8 +490,8 @@ Jeśli przekroczysz 10 tys. rps/1 API lub 5 tys. rps / wszystkie otrzymasz błą
 Możesz skonfigurować API Getaway - SOAP Webservice Passtrough.
 
 ---
-
-## 6. AWS Lambda
+<a name="question7"></a>
+## 7. AWS Lambda
 
 Lambda functions - wersjonowanie funkcji. 1 lub więcej funkcji, wynikiem czego można pracować z różnymi wersjami środowiska, jak testowe, rozwijane, produkcyjne.
 
@@ -520,7 +521,7 @@ Lambda:
 * do backupu można użyć bucketu S3
 
 ---
-
+<a name="question8"></a>
 ## 8. AWS Step Functions
 
 AWS SF pozwalają wizualizować i testować bezserwerowe aplikacje.
@@ -532,7 +533,7 @@ Step Functions automatycznie wyłapują i śledzą każdy krok i każdą próbę
 SF zapisuję log stanu każdego kroku dlatego można szybko zdiagnozować i debugować ew. błedy.
 
 ---
-
+<a name="question9"></a>
 ## 9. AWS X-Ray
 
 X-Ray - usługa zbiera dane nt. żądań generowanych przez daną aplikację i daje narzędzia do pokazu tych danychm filtrowania, wzmocnienia sygnału do indentyfikacji możlwości ew. optymalizacji.
@@ -562,7 +563,7 @@ X-Ray - języki programowania:
 - .NET
 
 ---
-
+<a name="question10"></a>
 ## 10. DynamoDB
 
 DynamoDB:
@@ -725,7 +726,7 @@ DAX nie pasuje do:
 - nie wymagających mikrosekundowego czasu odpowiedzi
 
 ---
-
+<a name="question11"></a>
 ## 11. Key Management Service
 
 AWS KMS - usługa do zarządzania ułatwiająca tworzenie i kontrolę nad kluczami szyfrowania używanymi do szyfrowania danych. Zintegrowana z innymi usługami jak EBS, S3, Redshift, RDS i innymi.
@@ -759,7 +760,7 @@ Polecenia KMS API:
 - aws kms enable-key-rotation
 
 ---
-
+<a name="question12"></a>
 ## 12. Simple Queue Service
 
 SQS - Simple Queue Service
@@ -797,7 +798,7 @@ Nalezy zwiększyć czas jeżeli zadanie zajmuje więcej. Max to 12 godzin.
 SQS Long Polling - sposób na otrzymywanie wiadomości z kolejki SQS. Podczas gdy regularne wiadomości dochodzą w trybie short polling - natychmiastowo, long polling nie zwraca odpowiedzi dopóki wiadomość nie odtrze do kolejki, lub skończy się czas long poll. Long poll może zaoszczędzić pieniądze.
 
 ---
-
+<a name="question13"></a>
 ## 13. Simple Notification Service
 
 SNS - Simple Notification Service - usługa dająca łatwe do skonfigurowania, operowania, wysyłania powiadomienia z chmury.
@@ -840,7 +841,7 @@ Uzytkownik płaci za:
 SNS - fan out messages (rozwijanie) do dużej liczbny odbiorców
 
 ---
-
+<a name="question14"></a>
 ## 14. Simple Email Service
 
 SES - emaile - skalowalna, wysoko dostęp na usługa wysyłania emaili zaprojektowana do pomocy zespołom marketingowym i aplikacjom wysyłającym dane marketingowe, powiadomienia, emaile dot. transakcji, dla użytkowników płacących za wykorzystanie usługi.
@@ -857,7 +858,7 @@ SES - przykłady użycia:
 Wymagany jest email do rozpoczęcia wysyłania (nie oparte na subsrypcji).
 
 ---
-
+<a name="question15"></a>
 ## 15. Elastic Beanstalk
 
 Elastic Beanstalk - usługa do wdrażania i skalowania aplikacji webowych napisanych w językach: Java, .NET, PHP, Node.js, Python, Ruby, Go, także kontenerów Dockera i innych serwerowych platform jak Apache Tomcat, Ngin, Passenger czy IIS. Dzięki EB programiści nie muszą przejmować się infrastrukturą potrzebną do uruchomienia aplikacji.
@@ -930,8 +931,8 @@ Osobno:
 - zezwala na połączenie z różnych środowisk do jednej bazy, można wyłączyć aplikację bez wpływu na bazę
 
 ---
-
-16. Kinesis
+<a name="question16"></a>
+## 16. Kinesis
 
 Amazon Kinesis - platforma AWS do wysyłania danych streamingowych. Kinesis sprawia, że łatwo analizować dane streamingowe, daje też możliwość do zbudowania własnej aplikacji.
 
@@ -952,8 +953,8 @@ Kinesis Firehose:
 Można skonfigurować Lambdę do subskrybcji Kinesis Sreams i wykonania funkcji przed wysłaniem przetworzonych danych do finałowego miejsca przeznaczenia.
 
 ---
-
-17. Cognito
+<a name="question17"></a>
+## 17. AWS Cognito
 
 Web Identity Federation - daje użytkownikom aplikacji w AWS dostęp do ich zasobów po tym jak pomyślnie zostaną zalogowani (authenticated) do popularnych serwisów jak Amazon, Facebook czy Google.
 
@@ -996,8 +997,8 @@ W kolejności dostarczania użytkownikowi wrażenia ciągłego dostępu do aplik
 SNS jest użyty do wysłania cichych powiadomień do wszystkich urządzeń związanych z daną tożsamością (User ID) podczas kiedy dane są przechowywane w chmurze.
 
 ---
-
-18. Continous Integration / Continous Deployment
+<a name="question18"></a>
+## 18. Continous Integration / Continous Deployment Services
 
 Najlepsze praktyki CI & CD dla rozwoju i wdrożenia aplikacji pozwalają systematycznie wprowadzać zmiany w aplikacji podczas kiedy system i usługi są stabilnie utrzymane.
 
@@ -1122,8 +1123,8 @@ Komendy Dockera do zbudowania, tagowania i wypchnięcia obrazu do repozytorium E
 - docker push 725350006743.dkr.ecr.eu-central-1.amazonaws.com/myimagerepo:latest
 
 ---
-
-19. CloudFormation
+<a name="question19"></a>
+## 19. CloudFormation
 
 CloudFormation - usługa daje zarządzanie, konfigurację i zabezpieczenie twojej infrastruktury AWS z kodu.
 
