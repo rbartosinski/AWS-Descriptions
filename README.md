@@ -3,13 +3,13 @@
 Knowledge base about basics and standards in Amazon Web Services (in Polish).
 
 
-1. [IAM - Identity and Access Management](#1.IAM---Identity-and-Access-Management)
-2. [EC2 - Elastic Compute Cloud](2.-EC2---Elastic-Compute-Cloud)
+1. [IAM - Identity and Access Management](#1.-Identity-and-Access-Management)
+2. [EC2 - Elastic Compute Cloud](2.-Elastic-Compute-Cloud)
 
 
 ---
 
-## 1.IAM - Identity and Access Management
+## 1. Identity and Access Management
 
 IAM:
 * scentralizowana kontrola konta AWS
@@ -81,7 +81,7 @@ Zasady Inline są funkcjonalne kiedy chcesz być pewien, że określone zezwolen
 
 ---
 
-## 2. EC2 - Elastic Compute Cloud
+## 2. Elastic Compute Cloud
 
 Elastic Compute Cloud (EC2) - instancja elastycznie zmieniającej rozmiar chmury obliczeniowej.
 
