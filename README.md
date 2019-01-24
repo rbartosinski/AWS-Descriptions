@@ -5,7 +5,23 @@ Knowledge base about basics and standards in Amazon Web Services (in Polish).
 
 1. [IAM - Identity and Access Management](#question1)
 2. [EC2 - Elastic Compute Cloud](#question2)
-3. [3. RDS - Relational Database Service](#question3)
+3. [RDS - Relational Database Service](#question3)
+4. [S3 - Simple Storage Service](#question4)
+5. [CloudFront](#question5)
+6. [API Getaway](#question6)
+7. [AWS Lambda](#question7)
+8. [AWS Step Functions](#question8)
+9. [AWS X-Ray](#question9)
+10. [DynamoDB](#question10)
+11. [KMS - Key Management Service](#question11)
+12. [SQS - Simple Queue Service](#question12)
+13. [SNS - Simple Notification Service](#question13)
+14. [SES - Simple Email Service](#question14)
+15. [Elastic Beanstalk](#question15)
+16. [Kinesis](#question16)
+17. [AWS Cognito](#question17)
+18. [Continous Integration / Continous Deployment Services](#question18)
+19. [CloudFormation](#question19)
 
 
 ---
